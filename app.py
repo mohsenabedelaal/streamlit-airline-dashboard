@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+from wordcloud import WordCloud , STOPWORDS
+import matplotlib.pyplot as plt
 
 st.title("Sentiment Analysis of Tweets about US Airlines")
 st.sidebar.title("Sentiment Analysis of Tweets about US Airlines")
@@ -67,3 +69,19 @@ if len(choice_airlines) > 0:
                                          facet_col='airline_sentiment',labels={'airline_sentiment':'tweets'},
                                          height=600,width=800)
     st.plotly_chart(airline_histogram_fig)
+
+
+
+st.sidebar.header("Word Cloud")
+word_sentiment = st.sidebar.radio('Display word cloud for what sentiment ?',('positive','neutral','negative'))
+
+if not st.sidebar.checkbox("Hide Word Cloud",True):
+    st.header("Word Cloud for %s sentiment" % (word_sentiment))
+    df = data[data['airline_sentiment'] == word_sentiment]
+    words = ' '.join(df['text'])
+    processed_word = ' '.join([word for word in words.split() if 'http' not in word and not word.startswith("@") and word != 'RT'])
+    wordcloud = WordCloud(stopwords=STOPWORDS,background_color="white",height=640,width=800).generate(processed_word)
+    wordcloud_fig = plt.imshow(wordcloud)
+    plt.xticks([])
+    plt.yticks([])
+    st.pyplot()
